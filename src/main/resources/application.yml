@@ -1,0 +1,23 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  datasource:
+    url: "jdbc:mysql://${MYSQL_HOST:localhost}:3306/first_lab"
+    username: root
+    password: admin
+
+application:
+  paymentTypes:
+    CASH: "Наличные"
+    CREDIT_CARD: "Кредитная карта"
+    CREDIT: "Кредит"
+    BARTER: "Бартер"
+    OFFSET: "Взаимозачет"
+  result:
+    success: "Успешно"
+    fault: "Ошибка"
