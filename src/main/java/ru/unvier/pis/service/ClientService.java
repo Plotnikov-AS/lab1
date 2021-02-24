@@ -13,7 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.String.format;
+import static java.util.Collections.singletonList;
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 import static ru.unvier.pis.constants.Constants.ErrorMessages.PARAM_IS_EMPTY_ERROR;
 import static ru.unvier.pis.constants.Constants.ParamNames.CLIENT;
@@ -39,6 +41,9 @@ public class ClientService {
 
         try {
             Client client = objectMapper.readValue(clientStr, Client.class);
+            if (nonNull(client.getId()))
+                return singletonList(getClient(client.getId()));
+
             List<Client> clients = new ArrayList<>();
             if (!isEmpty(client.getLastName())) {
                 clients = clientDao.getClientsByLastName(client.getLastName());

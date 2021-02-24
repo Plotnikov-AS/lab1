@@ -8,9 +8,12 @@
             document.getElementById("product").value = JSON.stringify(jsonProduct);
         }
     </script>
-    <div>
-        <input type="text" id="productName" placeholder="Название товара"><br>
-    </div>
+    <table>
+        <tr>
+            <td>Название товара:</td>
+            <td><input type="text" id="productName" placeholder="Название товара"></td>
+        </tr>
+    </table>
     <form action="/getProduct" method="post">
         <input type="hidden" id="product" name="product">
         <ul class="menu">

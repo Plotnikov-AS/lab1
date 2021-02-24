@@ -43,6 +43,7 @@
     </#if>
     <ul class="menu">
         <li><a href="/addProduct">Добавить новый товар</a></li>
+        <li><a href="javascript:history.back()">Назад</a></li>
         <li><a href="/">На главную</a></li>
     </ul>
 

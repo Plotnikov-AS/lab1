@@ -1,3 +1,7 @@
+.menu {
+    text-align: center;
+}
+
 .menu li {
     display: inline-block;
     margin: 0;
@@ -38,4 +42,23 @@ input[type=submit] {
     color: #d9eef7;
     border: solid 1px #0076a3;
     background: #0095cd;
+}
+
+h1 {
+    text-align: center;
+}
+
+h2 {
+    text-align: center;
+    margin: 50px;
+}
+
+table, th, td {
+    padding: 10px;
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+table {
+    margin: 0 auto;
 }

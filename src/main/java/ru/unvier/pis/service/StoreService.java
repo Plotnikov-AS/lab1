@@ -10,6 +10,7 @@ import ru.unvier.pis.dao.FinAccountDao;
 import ru.unvier.pis.dao.ProductDao;
 import ru.unvier.pis.model.Cart;
 import ru.unvier.pis.model.FulfillResult;
+import ru.unvier.pis.model.PaymentType;
 import ru.unvier.pis.model.entity.Client;
 import ru.unvier.pis.model.entity.FinAccount;
 import ru.unvier.pis.model.entity.Product;
@@ -61,13 +62,17 @@ public class StoreService {
         }
     }
 
-    public FulfillResult fulfillOrder(String paymentType, String strCart, Long clientId) {
+    public FulfillResult fulfillOrder(String paymentType, String strCart, Long clientId, String clientBarterProducts) {
         try {
             Cart cart = objectMapper.readValue(strCart, Cart.class);
             Double totalCartPrice = totalCartPrice(cart);
             Client client = clientDao.getClientById(clientId);
             FinAccount finAccount = client.getFinAccount();
-            switch (configuration.parsePaymentType(paymentType)) {
+            PaymentType pmntType = PaymentType.parsePaymentType(paymentType);
+            if (isNull(pmntType)) {
+                pmntType = configuration.parsePaymentType(paymentType);
+            }
+            switch (pmntType) {
                 case CASH:
                     return sellForCash(finAccount, totalCartPrice, cart);
                 case CREDIT_CARD:
@@ -75,14 +80,14 @@ public class StoreService {
                 case CREDIT:
                     return sellForCredit(finAccount, totalCartPrice, cart);
                 case BARTER:
-                    return sellForBarter(finAccount, totalCartPrice, cart);
+                    return sellForBarter(cart, clientBarterProducts);
                 case OFFSET:
                     return sellForOffset(finAccount, totalCartPrice, cart);
                 default:
-                    throw new RuntimeException(UNKNOWN_PAYMENT_TYPE);
+                    throw new RuntimeException(format(UNKNOWN_PAYMENT_TYPE, pmntType));
             }
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(format(CANT_PARSE_OBJECT_ERROR, CART, strCart));
+            throw new RuntimeException(format(CANT_PARSE_OBJECT_ERROR, e.getMessage()));
         }
     }
 
@@ -91,9 +96,18 @@ public class StoreService {
         return FulfillResult.builder().status(configuration.getResult().get(FAULT)).build();
     }
 
-    private FulfillResult sellForBarter(FinAccount finAccount, Double totalCartPrice, Cart cart) {
-        //TODO
-        return FulfillResult.builder().status(configuration.getResult().get(FAULT)).build();
+    private FulfillResult sellForBarter(Cart cart, String clientBarterProducts) throws JsonProcessingException {
+        try {
+            Cart clientProducts = objectMapper.readValue(clientBarterProducts, Cart.class);
+            increaseProducts(clientProducts);
+            decreaseProducts(cart);
+            return FulfillResult.builder().
+                    status(configuration.getResult().get(SUCCESS))
+                    .build();
+        } catch (RuntimeException e) {
+            return FulfillResult.builder()
+                    .status(configuration.getResult().get(FAULT)).build();
+        }
     }
 
     private FulfillResult sellForCredit(FinAccount finAccount, Double totalCartPrice, Cart cart) {
@@ -166,6 +180,25 @@ public class StoreService {
         Double curTotalSpent = finAccount.getTotalSpent();
         finAccount.setTotalSpent(curTotalSpent + totalCartPrice);
         finAccountDao.updateFinAccount(finAccount);
+    }
+
+    private void increaseProducts(Cart cart) {
+        if (isNull(cart) || isEmpty(cart.getProducts()))
+            throw new IllegalArgumentException(format(PARAM_IS_EMPTY_ERROR, CART));
+        for (Map<String, String> product : cart.getProducts()) {
+            if (isNull(product)) continue;
+
+            int count = parseInt(product.get(COUNT));
+            if (count < 0)
+                throw new RuntimeException(format(PARAM_LESS_THEN_ZERO_ERROR, COUNT));
+
+            String productName = product.get(PRODUCT_NAME);
+            Product newProduct = Product.builder()
+                    .productName(productName)
+                    .countLeft(String.valueOf(count))
+                    .build();
+            productDao.addNewProduct(newProduct);
+        }
     }
 
     private void decreaseProducts(Cart cart) {

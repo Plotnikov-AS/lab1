@@ -10,14 +10,23 @@
             document.getElementById("product").value = JSON.stringify(jsonProduct);
         }
     </script>
-    <div>
+    <table>
+        <tr>
+            <td>Название товара:</td>
+            <td>${product.getProductName()}</td>
+        </tr>
+        <tr>
+            <td>Цена товара:</td>
+            <td>${product.getProductPrice()} руб.</td>
+        </tr>
+        <tr>
+            <td>Количество товара:</td>
+            <td>${product.getCountLeft()} шт.</td>
+        </tr>
         <input type="hidden" id="productName" value="${product.getProductName()}">
         <input type="hidden" id="productPrice" value="${product.getProductPrice()}">
         <input type="hidden" id="productCount" value="${product.getCountLeft()}">
-        Название товара: ${product.getProductName()}<br>
-        Цена товара: ${product.getProductPrice()}<br>
-        Количество товара: ${product.getCountLeft()}<br>
-    </div>
+    </table>
     <form action="/changeProduct" method="get">
         <input type="hidden" id="product" name="product">
         <ul class="menu">

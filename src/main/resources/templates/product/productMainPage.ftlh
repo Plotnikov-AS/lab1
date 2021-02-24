@@ -1,7 +1,7 @@
 <#import "../macro/page.ftlh" as p>
 <@p.page>
-    <h1><b>Товары</b></h1>
-    <p>Выберите действие</p>
+    <h1>Товары</h1>
+    <h2>Выберите действие</h2>
     <ul class="menu">
         <li><a href="/getAllProducts">Список товаров</a></li>
         <li><a href="/addProduct">Добавить новые товары</a></li>

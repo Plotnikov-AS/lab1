@@ -11,6 +11,7 @@ public interface Constants {
         String DELETE_CLIENT = "deleteClient";
         String ORDER = "order";
         String SALE = "sale";
+        String BARTER = "barter";
         String PRODUCTS = "products";
         String ADD_PRODUCT = "addProduct";
         String GET_ALL_PRODUCTS = "getAllProducts";
@@ -31,8 +32,8 @@ public interface Constants {
         String NOTHING_WAS_FOUND_ERROR = "Noting was found for %s = '%s'";
         String PARAM_LESS_THEN_ZERO_ERROR = "%s less then zero!";
         String NEW_VALUE_MORE_THAN_MAX_POSSIBLE_ERROR = "New %s = '%s' more than max possible %s = '%s'";
-        String UNKNOWN_PAYMENT_TYPE = "Unknown payment type";
-        String CANT_PARSE_OBJECT_ERROR = "Can't parse %s from %s";
+        String UNKNOWN_PAYMENT_TYPE = "Unknown payment type: %s";
+        String CANT_PARSE_OBJECT_ERROR = "Can't parse: %s";
         String NON_UNIQUE_RESULT_ERROR = "Non unique result for %s = %s";
     }
 

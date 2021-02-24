@@ -13,13 +13,25 @@ public interface ClientRepo extends JpaRepository<Client, Long> {
 
     Client getClientById(Long id);
 
-    List<Client> getClientsByLastName(String lastName);
+    @Query("SELECT client " +
+            "FROM Client client " +
+            "WHERE UPPER(client.lastName) like CONCAT('%', UPPER(:lastName), '%')")
+    List<Client> getClientsByLastName(@Param("lastName") String lastName);
 
-    List<Client> getClientsByFirstName(String firstName);
+    @Query("SELECT client " +
+            "FROM Client client " +
+            "WHERE UPPER(client.firstName) like CONCAT('%', UPPER(:firstName), '%')")
+    List<Client> getClientsByFirstName(@Param("firstName") String firstName);
 
-    List<Client> getClientsByMiddleName(String middleName);
+    @Query("SELECT client " +
+            "FROM Client client " +
+            "WHERE UPPER(client.middleName) like CONCAT('%', UPPER(:middleName), '%')")
+    List<Client> getClientsByMiddleName(@Param("middleName") String middleName);
 
-    List<Client> getClientsByOrganizationName(String organizationName);
+    @Query("SELECT client " +
+            "FROM Client client " +
+            "WHERE UPPER(client.organizationName) like CONCAT('%', UPPER(:organizationName), '%')")
+    List<Client> getClientsByOrganizationName(@Param("organizationName") String organizationName);
 
     @Query("SELECT DISTINCT client " +
             "FROM Client client " +
