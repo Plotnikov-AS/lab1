@@ -58,7 +58,7 @@ public class StoreService {
                     });
             return products;
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(format(CANT_PARSE_OBJECT_ERROR, CART, strCart));
+            throw new RuntimeException(format(CANT_PARSE_OBJECT_ERROR, strCart));
         }
     }
 
@@ -92,9 +92,20 @@ public class StoreService {
     }
 
     private FulfillResult sellForOffset(FinAccount finAccount, Double totalCartPrice, Cart cart) {
-        //TODO
+        try {
+            decreaseClientDebt(finAccount, totalCartPrice);
+            increaseCreditLeft(finAccount, totalCartPrice);
+            increaseProducts(cart);
+        } catch (RuntimeException e) {
+            return FulfillResult.builder()
+                    .status(configuration.getResult().get(FAULT))
+                    .build();
+        }
         return FulfillResult.builder().status(configuration.getResult().get(FAULT)).build();
     }
+
+
+
 
     private FulfillResult sellForBarter(Cart cart, String clientBarterProducts) throws JsonProcessingException {
         try {
@@ -106,7 +117,8 @@ public class StoreService {
                     .build();
         } catch (RuntimeException e) {
             return FulfillResult.builder()
-                    .status(configuration.getResult().get(FAULT)).build();
+                    .status(configuration.getResult().get(FAULT))
+                    .build();
         }
     }
 
@@ -149,6 +161,21 @@ public class StoreService {
                     .message(e.getMessage())
                     .build();
         }
+    }
+
+    private void increaseCreditLeft(FinAccount finAccount, Double totalCartPrice) {
+        Double curCreditLeft = finAccount.getCreditLeft();
+        Double maxCredit = finAccount.getCreditMax();
+        double newCredidLeft = Double.min(maxCredit, (curCreditLeft + totalCartPrice));
+        finAccount.setCreditLeft(newCredidLeft);
+        finAccountDao.updateFinAccount(finAccount);
+    }
+
+    private void decreaseClientDebt(FinAccount finAccount, Double decreaseAmount) {
+        Double curDebt = finAccount.getCurDebt();
+        double newDebt = Double.max(0, (curDebt - decreaseAmount));
+        finAccount.setCurDebt(newDebt);
+        finAccountDao.updateFinAccount(finAccount);
     }
 
     private void increaseClientDebt(FinAccount finAccount, Double creditAmount) throws RuntimeException {

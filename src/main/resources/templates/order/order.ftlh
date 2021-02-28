@@ -1,6 +1,6 @@
 <#import "../macro/page.ftlh" as p>
 <@p.page>
-    <script src="order.js"></script>
+    <script src="js/order.js"></script>
     <h1>Продажа</h1>
     <label>Тип оплаты: ${paymentType}</label>
     <label>Баланс клиента: ${client.getFinAccount().getCurBalance()} руб.</label>

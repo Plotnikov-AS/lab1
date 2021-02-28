@@ -1,9 +1,5 @@
 package ru.unvier.pis.model;
 
-import static java.lang.String.format;
-import static ru.unvier.pis.constants.Constants.ErrorMessages.NOTHING_WAS_FOUND_ERROR;
-import static ru.unvier.pis.constants.Constants.ParamNames.PAYMENT_TYPE;
-
 public enum PaymentType {
     CASH,
     CREDIT_CARD,
@@ -18,7 +14,7 @@ public enum PaymentType {
         if (BARTER.name().equalsIgnoreCase(paymentType)) return BARTER;
         if (OFFSET.name().equalsIgnoreCase(paymentType)) return OFFSET;
 
-        throw new RuntimeException(format(NOTHING_WAS_FOUND_ERROR, PAYMENT_TYPE, paymentType));
+        return null;
     }
 
 }
