@@ -60,6 +60,8 @@ public class StoreController {
                        @RequestParam("cart") String cart,
                        @RequestParam("clientId") Long clientId,
                        Model model) {
+        System.out.println("Cart: " + cart);
+        System.out.println("Products: " + clientProducts);
         FulfillResult result = storeService.fulfillOrder(paymentType, cart, clientId, clientProducts);
         model.addAttribute("cart", storeService.getSubmittedProducts(cart));
         model.addAttribute("result", result);

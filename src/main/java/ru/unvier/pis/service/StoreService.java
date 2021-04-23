@@ -101,7 +101,9 @@ public class StoreService {
                     .status(configuration.getResult().get(FAULT))
                     .build();
         }
-        return FulfillResult.builder().status(configuration.getResult().get(FAULT)).build();
+        return FulfillResult.builder()
+                .status(configuration.getResult().get(SUCCESS))
+                .build();
     }
 
 
@@ -110,7 +112,7 @@ public class StoreService {
     private FulfillResult sellForBarter(Cart cart, String clientBarterProducts) throws JsonProcessingException {
         try {
             Cart clientProducts = objectMapper.readValue(clientBarterProducts, Cart.class);
-            increaseProducts(clientProducts);
+            addNewProducts(clientProducts);
             decreaseProducts(cart);
             return FulfillResult.builder().
                     status(configuration.getResult().get(SUCCESS))
@@ -209,7 +211,7 @@ public class StoreService {
         finAccountDao.updateFinAccount(finAccount);
     }
 
-    private void increaseProducts(Cart cart) {
+    private void addNewProducts(Cart cart) {
         if (isNull(cart) || isEmpty(cart.getProducts()))
             throw new IllegalArgumentException(format(PARAM_IS_EMPTY_ERROR, CART));
         for (Map<String, String> product : cart.getProducts()) {
@@ -223,8 +225,27 @@ public class StoreService {
             Product newProduct = Product.builder()
                     .productName(productName)
                     .countLeft(String.valueOf(count))
+                    .productPrice("-")
                     .build();
             productDao.addNewProduct(newProduct);
+        }
+    }
+
+    private void increaseProducts(Cart cart) {
+        if (isNull(cart) || isEmpty(cart.getProducts()))
+            throw new IllegalArgumentException(format(PARAM_IS_EMPTY_ERROR, CART));
+        for (Map<String, String> product : cart.getProducts()) {
+            if (isNull(product)) continue;
+
+            int count = parseInt(product.get(COUNT));
+            if (count < 0)
+                throw new RuntimeException(format(PARAM_LESS_THEN_ZERO_ERROR, COUNT));
+            Long prodId = Long.valueOf(product.get(PRODUCT_ID));
+            Product prodFromDB = productDao.getProductById(prodId);
+            Long newCount = Long.parseLong(prodFromDB.getCountLeft()) + count;
+            prodFromDB.setCountLeft(String.valueOf(newCount));
+
+            productDao.updateProduct(prodFromDB);
         }
     }
 
