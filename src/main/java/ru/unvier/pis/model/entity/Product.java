@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Data
 @Entity
@@ -27,4 +28,10 @@ public class Product {
 
     @Column(name = "COUNT_LEFT")
     private String countLeft;
+
+//    @ManyToMany(mappedBy = "products")
+    @OneToMany(mappedBy = "product")
+    private List<Report> reports;
+//    @OneToOne(mappedBy = "product")
+//    private Report report;
 }

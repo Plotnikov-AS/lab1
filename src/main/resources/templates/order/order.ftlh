@@ -3,9 +3,7 @@
     <script src="js/order.js"></script>
     <h1>Продажа</h1>
     <label>Тип оплаты: ${paymentType}</label>
-    <label>Баланс клиента: ${client.getFinAccount().getCurBalance()} руб.</label>
     <div>
-        <p><b>Товары</b><br></p>
         <#if (products?size <= 0)>
         <h2>Склад пуст!</h2>
         <#else>
@@ -35,7 +33,7 @@
         </table>
         <br>
     </div>
-    <div id="totalPrice"><b>Общая сумма покупки: </b>0.0 руб.</div>
+    <div id="totalPrice"><b>Общая сумма покупки: </b>0.0 $</div>
     <form action="/sale" method="post">
         <input type="hidden" id="cart" name="cart">
         <input type="hidden" name="paymentType" value="${paymentType}">

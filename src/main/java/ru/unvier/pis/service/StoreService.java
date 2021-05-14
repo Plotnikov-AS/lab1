@@ -50,6 +50,7 @@ public class StoreService {
                     .forEach(prod -> {
                         Product product = productDao.getProductById(Long.valueOf(prod.get(PRODUCT_ID)));
                         Map<String, String> map = new HashMap<>();
+                        map.put("productId", String.valueOf(product.getId()));
                         map.put(PRODUCT_NAME, product.getProductName());
                         map.put(COUNT, prod.get(COUNT));
                         map.put(PRICE_EACH, product.getProductPrice());
@@ -62,7 +63,7 @@ public class StoreService {
         }
     }
 
-    public FulfillResult fulfillOrder(String paymentType, String strCart, Long clientId, String clientBarterProducts) {
+    public FulfillResult fulfillOrder(String paymentType, String strCart, Long clientId) {
         try {
             Cart cart = objectMapper.readValue(strCart, Cart.class);
             Double totalCartPrice = totalCartPrice(cart);
@@ -77,12 +78,8 @@ public class StoreService {
                     return sellForCash(finAccount, totalCartPrice, cart);
                 case CREDIT_CARD:
                     return sellForCreditCard(finAccount, totalCartPrice, cart);
-                case CREDIT:
-                    return sellForCredit(finAccount, totalCartPrice, cart);
-                case BARTER:
-                    return sellForBarter(cart, clientBarterProducts);
-                case OFFSET:
-                    return sellForOffset(finAccount, totalCartPrice, cart);
+                case BACK_RETURN:
+                    return doReturn(cart, client);
                 default:
                     throw new RuntimeException(format(UNKNOWN_PAYMENT_TYPE, pmntType));
             }
@@ -91,56 +88,8 @@ public class StoreService {
         }
     }
 
-    private FulfillResult sellForOffset(FinAccount finAccount, Double totalCartPrice, Cart cart) {
-        try {
-            decreaseClientDebt(finAccount, totalCartPrice);
-            increaseCreditLeft(finAccount, totalCartPrice);
-            increaseProducts(cart);
-        } catch (RuntimeException e) {
-            return FulfillResult.builder()
-                    .status(configuration.getResult().get(FAULT))
-                    .build();
-        }
-        return FulfillResult.builder()
-                .status(configuration.getResult().get(SUCCESS))
-                .build();
-    }
-
-
-
-
-    private FulfillResult sellForBarter(Cart cart, String clientBarterProducts) throws JsonProcessingException {
-        try {
-            Cart clientProducts = objectMapper.readValue(clientBarterProducts, Cart.class);
-            addNewProducts(clientProducts);
-            decreaseProducts(cart);
-            return FulfillResult.builder().
-                    status(configuration.getResult().get(SUCCESS))
-                    .build();
-        } catch (RuntimeException e) {
-            return FulfillResult.builder()
-                    .status(configuration.getResult().get(FAULT))
-                    .build();
-        }
-    }
-
-    private FulfillResult sellForCredit(FinAccount finAccount, Double totalCartPrice, Cart cart) {
-        try {
-            decreaseClientBalance(finAccount, totalCartPrice);
-            increaseTotalSpent(finAccount, totalCartPrice);
-            decreaseProducts(cart);
-            return FulfillResult.builder().status(configuration.getResult().get(SUCCESS)).build();
-        } catch (RuntimeException e) {
-            return FulfillResult.builder()
-                    .status(configuration.getResult().get(FAULT))
-                    .message(e.getMessage())
-                    .build();
-        }
-    }
-
     private FulfillResult sellForCreditCard(FinAccount finAccount, Double totalCartPrice, Cart cart) {
         try {
-            decreaseClientBalance(finAccount, totalCartPrice);
             increaseTotalSpent(finAccount, totalCartPrice);
             decreaseProducts(cart);
             return FulfillResult.builder().status(configuration.getResult().get(SUCCESS)).build();
@@ -165,88 +114,42 @@ public class StoreService {
         }
     }
 
-    private void increaseCreditLeft(FinAccount finAccount, Double totalCartPrice) {
-        Double curCreditLeft = finAccount.getCreditLeft();
-        Double maxCredit = finAccount.getCreditMax();
-        double newCredidLeft = Double.min(maxCredit, (curCreditLeft + totalCartPrice));
-        finAccount.setCreditLeft(newCredidLeft);
+    public FulfillResult doReturn(Cart cart, Client client) {
+        increaseProducts(cart);
+        decreaseTotalSpent(cart, client);
+
+        return FulfillResult.builder()
+                .build();
+    }
+
+    private void decreaseTotalSpent(Cart cart, Client client) {
+        Double totalCartPrice = totalCartPrice(cart);
+        FinAccount finAccount = client.getFinAccount();
+        Double curTotalSpent = finAccount.getTotalSpent();
+        finAccount.setTotalSpent(Math.max(0, curTotalSpent - totalCartPrice));
         finAccountDao.updateFinAccount(finAccount);
     }
 
-    private void decreaseClientDebt(FinAccount finAccount, Double decreaseAmount) {
-        Double curDebt = finAccount.getCurDebt();
-        double newDebt = Double.max(0, (curDebt - decreaseAmount));
-        finAccount.setCurDebt(newDebt);
-        finAccountDao.updateFinAccount(finAccount);
-    }
+    private void increaseProducts(Cart cart) {
+        if (isNull(cart) || isEmpty(cart.getProducts()))
+            throw new IllegalArgumentException(format(PARAM_IS_EMPTY_ERROR, CART));
 
-    private void increaseClientDebt(FinAccount finAccount, Double creditAmount) throws RuntimeException {
-        Double curDebt = finAccount.getCurDebt();
-        Double maxCredit = finAccount.getCreditMax();
-        Double creditLeft = finAccount.getCreditLeft();
-        double newDebt = curDebt + creditAmount;
-        if (newDebt > maxCredit)
-            throw new RuntimeException(format(NEW_VALUE_MORE_THAN_MAX_POSSIBLE_ERROR, DEBT, newDebt, CREDIT_LEFT, creditLeft));
-        double newCreditLeft = Double.max(0, creditLeft - newDebt);
-        finAccount.setCurDebt(newDebt);
-        finAccount.setCreditLeft(newCreditLeft);
-        finAccountDao.updateFinAccount(finAccount);
-    }
+        for (Map<String, String> product : cart.getProducts()) {
+            if (isNull(product)) continue;
 
-    private void decreaseClientBalance(FinAccount finAccount, Double totalCartPrice) throws RuntimeException {
-        Double curBalance = finAccount.getCurBalance();
-        double newBalance = curBalance - totalCartPrice;
-        if (newBalance < 0) {
-            double creditAmount = totalCartPrice - curBalance;
-            increaseClientDebt(finAccount, creditAmount);
-            newBalance = 0.0;
+            Long productId = parseLong(product.get(PRODUCT_ID));
+            int count = parseInt(product.get(COUNT));
+            Product pr = productDao.getProductById(productId);
+            int newCount = parseInt(pr.getCountLeft()) + count;
+            pr.setCountLeft(String.valueOf(newCount));
+            productDao.updateProduct(pr);
         }
-        finAccount.setCurBalance(newBalance);
-        finAccountDao.updateFinAccount(finAccount);
     }
 
     private void increaseTotalSpent(FinAccount finAccount, Double totalCartPrice) {
         Double curTotalSpent = finAccount.getTotalSpent();
         finAccount.setTotalSpent(curTotalSpent + totalCartPrice);
         finAccountDao.updateFinAccount(finAccount);
-    }
-
-    private void addNewProducts(Cart cart) {
-        if (isNull(cart) || isEmpty(cart.getProducts()))
-            throw new IllegalArgumentException(format(PARAM_IS_EMPTY_ERROR, CART));
-        for (Map<String, String> product : cart.getProducts()) {
-            if (isNull(product)) continue;
-
-            int count = parseInt(product.get(COUNT));
-            if (count < 0)
-                throw new RuntimeException(format(PARAM_LESS_THEN_ZERO_ERROR, COUNT));
-
-            String productName = product.get(PRODUCT_NAME);
-            Product newProduct = Product.builder()
-                    .productName(productName)
-                    .countLeft(String.valueOf(count))
-                    .productPrice("-")
-                    .build();
-            productDao.addNewProduct(newProduct);
-        }
-    }
-
-    private void increaseProducts(Cart cart) {
-        if (isNull(cart) || isEmpty(cart.getProducts()))
-            throw new IllegalArgumentException(format(PARAM_IS_EMPTY_ERROR, CART));
-        for (Map<String, String> product : cart.getProducts()) {
-            if (isNull(product)) continue;
-
-            int count = parseInt(product.get(COUNT));
-            if (count < 0)
-                throw new RuntimeException(format(PARAM_LESS_THEN_ZERO_ERROR, COUNT));
-            Long prodId = Long.valueOf(product.get(PRODUCT_ID));
-            Product prodFromDB = productDao.getProductById(prodId);
-            Long newCount = Long.parseLong(prodFromDB.getCountLeft()) + count;
-            prodFromDB.setCountLeft(String.valueOf(newCount));
-
-            productDao.updateProduct(prodFromDB);
-        }
     }
 
     private void decreaseProducts(Cart cart) {

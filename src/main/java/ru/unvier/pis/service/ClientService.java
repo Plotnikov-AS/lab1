@@ -76,9 +76,7 @@ public class ClientService {
         List<String> paymentTypes = new ArrayList<>();
         paymentTypes.add(configuration.getPaymentTypeName(CASH));
         paymentTypes.add(configuration.getPaymentTypeName(CREDIT_CARD));
-        paymentTypes.add(configuration.getPaymentTypeName(CREDIT));
-        paymentTypes.add(configuration.getPaymentTypeName(BARTER));
-        paymentTypes.add(configuration.getPaymentTypeName(OFFSET));
+        paymentTypes.add(configuration.getPaymentTypeName(BACK_RETURN));
         return paymentTypes;
     }
 }

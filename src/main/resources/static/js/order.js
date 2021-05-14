@@ -21,7 +21,7 @@ function updateTotalPrice() {
         }
     }
     if (document.getElementById('totalPrice') !== null) {
-        document.getElementById('totalPrice').innerHTML = '<b>Общая сумма покупки:</b> ' + totalPrice.toString() + ' руб.';
+        document.getElementById('totalPrice').innerHTML = '<b>Общая сумма покупки:</b> ' + totalPrice.toString() + ' $';
     }
 }
 

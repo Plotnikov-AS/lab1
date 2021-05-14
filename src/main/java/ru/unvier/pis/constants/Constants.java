@@ -18,6 +18,9 @@ public interface Constants {
         String CHANGE_PRODUCT = "changeProduct";
         String GET_PRODUCT = "getProduct";
         String SEARCH_PRODUCT = "searchProduct";
+        String BACK_RETURN = "backReturn";
+        String CASH = "cash";
+        String CREDIT_CARD = "creditCard";
     }
 
     interface Config {

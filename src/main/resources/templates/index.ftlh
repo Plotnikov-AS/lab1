@@ -7,5 +7,6 @@
         <li><a href="/searchClient">Найти клиента</a></li>
         <li><a href="/createClient">Добавить нового клиента</a></li>
         <li><a href="/products">Товары</a></li>
+        <li><a href="/searchReports">Продажи</a></li>
     </ul>
 </@p.page>

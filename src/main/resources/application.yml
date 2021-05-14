@@ -7,17 +7,15 @@ spring:
       hibernate:
         format_sql: true
   datasource:
-    url: "jdbc:mysql://${MYSQL_HOST:localhost}:3306/first_lab"
+    url: "jdbc:mysql://${MYSQL_HOST:localhost}:3306/local"
     username: root
-    password: admin
+    password: root
 
 application:
   paymentTypes:
-    CASH: "Наличные"
-    CREDIT_CARD: "Кредитная карта"
-    CREDIT: "Кредит"
-    BARTER: "Бартер"
-    OFFSET: "Взаимозачет"
+    CASH: "Наличный"
+    CREDIT_CARD: "Безналичный"
+    BACK_RETURN: "Возврат"
   result:
     success: "Успешно"
     fault: "Ошибка"
