@@ -25,11 +25,7 @@ public class FinAccountDao {
 
     public FinAccount addFinAccount() {
         FinAccount finAccount = new FinAccount();
-        finAccount.setCurBalance(0.0);
         finAccount.setTotalSpent(0.0);
-        finAccount.setCurDebt(0.0);
-        finAccount.setCreditMax(DEFAULT_CREDIT_AMOUNT);
-        finAccount.setCreditLeft(DEFAULT_CREDIT_AMOUNT);
         entityManager.persist(finAccount);
 
         return finAccount;
@@ -40,10 +36,6 @@ public class FinAccountDao {
             throw new IllegalArgumentException(format(PARAM_IS_EMPTY_ERROR, FIN_ACCOUNT));
 
         FinAccount existingFinAccount = finAccountRepo.getById(finAccount.getId());
-        existingFinAccount.setCreditLeft(finAccount.getCreditLeft());
-        existingFinAccount.setCreditMax(finAccount.getCreditMax());
-        existingFinAccount.setCurBalance(finAccount.getCurBalance());
-        existingFinAccount.setCurDebt(finAccount.getCurDebt());
         existingFinAccount.setTotalSpent(finAccount.getTotalSpent());
 
         entityManager.persist(finAccount);

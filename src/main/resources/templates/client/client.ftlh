@@ -22,10 +22,6 @@
             <td>Сумма покупок клиента:</td>
             <td>${client.getFinAccount().getTotalSpent()} $</td>
         <tr>
-            <td>Комментарий:</td>
-            <td>${client.getComment()}</td>
-        </tr>
-        <tr>
             <td>Способ оплаты:</td>
             <td><select id="paymentTypeSel">
                     <#list paymentTypes as paymentType>

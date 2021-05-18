@@ -1,5 +1,6 @@
 <#import "../macro/page.ftlh" as p>
 <@p.page>
+    <h1>Добавление клиента</h1>
     <script>
         function getClient() {
             const jsonClient = {};
@@ -7,7 +8,6 @@
             jsonClient.firstName = document.getElementById("clientFirstName").value;
             jsonClient.middleName = document.getElementById("clientMiddleName").value;
             jsonClient.organizationName = document.getElementById("organizationName").value;
-            jsonClient.comment = document.getElementById("comment").value;
 
             document.getElementById("client").value = JSON.stringify(jsonClient);
         }
@@ -30,10 +30,6 @@
             <td>Название организации:</td>
             <td><input type="text" size="40" id="organizationName"></td>
         </tr>
-        <tr>
-            <td>Комментарий:</td>
-            <td><input type="text" size="40" id="comment"></td>
-        </tr>
     </table>
     <form action="/addClient" method="post">
         <input type="hidden" id="client" name="client">
@@ -42,7 +38,6 @@
         </ul>
     </form>
     <ul class="menu">
-        <li><a href="/getAllProducts">Все товары</a></li>
         <li><a href="/">На главную</a></li>
     </ul>
 </@p.page>

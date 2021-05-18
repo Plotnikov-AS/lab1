@@ -28,7 +28,6 @@
                 <th>Отчество</th>
                 <th>Имя организации</th>
                 <th>№ Лицевого счета</th>
-                <th>Комментарий</th>
                 <th>Действие</th>
             </tr>
             <#foreach client in clients>
@@ -38,7 +37,6 @@
                     <td id="clientMiddleName">${client.getMiddleName()}</td>
                     <td id="organizationName">${client.getOrganizationName()}</td>
                     <td>${client.getFinAccount().getId()}</td>
-                    <td>${client.getComment()}</td>
                     <td id="client">
                         <form action="/getClient" method="post">
                             <input type="hidden" id="client" name="client"/>

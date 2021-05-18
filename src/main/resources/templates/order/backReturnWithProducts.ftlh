@@ -24,20 +24,6 @@
         }
     </script>
     <h1>Возврат товара</h1>
-    <table id="client">
-        <tr>
-            <td>Покупатель:</td>
-            <td>${client.getLastName()} ${client.getFirstName()} ${client.getMiddleName()} ${client.getOrganizationName()}</td>
-        </tr>
-        <tr>
-            <td>Дата продажи:</td>
-            <td><input type="date" id="sellDateRep"></td>
-        </tr>
-        <tr>
-            <td>Номер документа продажи:</td>
-            <td><input type="number" id="reportIdRep"></td>
-        </tr>
-    </table><br><br>
     <table id="products">
         <tr>
             <th>Наименование</th>

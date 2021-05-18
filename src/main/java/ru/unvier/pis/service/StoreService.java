@@ -63,7 +63,7 @@ public class StoreService {
         }
     }
 
-    public FulfillResult fulfillOrder(String paymentType, String strCart, Long clientId) {
+    public void fulfillOrder(String paymentType, String strCart, Long clientId) {
         try {
             Cart cart = objectMapper.readValue(strCart, Cart.class);
             Double totalCartPrice = totalCartPrice(cart);
@@ -75,11 +75,14 @@ public class StoreService {
             }
             switch (pmntType) {
                 case CASH:
-                    return sellForCash(finAccount, totalCartPrice, cart);
+                    sellForCash(finAccount, totalCartPrice, cart);
+                    break;
                 case CREDIT_CARD:
-                    return sellForCreditCard(finAccount, totalCartPrice, cart);
+                    sellForCreditCard(finAccount, totalCartPrice, cart);
+                    break;
                 case BACK_RETURN:
-                    return doReturn(cart, client);
+                    doReturn(cart, client);
+                    break;
                 default:
                     throw new RuntimeException(format(UNKNOWN_PAYMENT_TYPE, pmntType));
             }
@@ -88,38 +91,19 @@ public class StoreService {
         }
     }
 
-    private FulfillResult sellForCreditCard(FinAccount finAccount, Double totalCartPrice, Cart cart) {
-        try {
-            increaseTotalSpent(finAccount, totalCartPrice);
-            decreaseProducts(cart);
-            return FulfillResult.builder().status(configuration.getResult().get(SUCCESS)).build();
-        } catch (RuntimeException e) {
-            return FulfillResult.builder()
-                    .status(configuration.getResult().get(FAULT))
-                    .message(e.getMessage())
-                    .build();
-        }
+    private void sellForCreditCard(FinAccount finAccount, Double totalCartPrice, Cart cart) {
+        increaseTotalSpent(finAccount, totalCartPrice);
+        decreaseProducts(cart);
     }
 
-    private FulfillResult sellForCash(FinAccount finAccount, Double totalCartPrice, Cart cart) {
-        try {
-            increaseTotalSpent(finAccount, totalCartPrice);
-            decreaseProducts(cart);
-            return FulfillResult.builder().status(configuration.getResult().get(SUCCESS)).build();
-        } catch (RuntimeException e) {
-            return FulfillResult.builder()
-                    .status(configuration.getResult().get(FAULT))
-                    .message(e.getMessage())
-                    .build();
-        }
+    private void sellForCash(FinAccount finAccount, Double totalCartPrice, Cart cart) {
+        increaseTotalSpent(finAccount, totalCartPrice);
+        decreaseProducts(cart);
     }
 
-    public FulfillResult doReturn(Cart cart, Client client) {
+    public void doReturn(Cart cart, Client client) {
         increaseProducts(cart);
         decreaseTotalSpent(cart, client);
-
-        return FulfillResult.builder()
-                .build();
     }
 
     private void decreaseTotalSpent(Cart cart, Client client) {

@@ -25,9 +25,6 @@ public class Client {
     @Column(name = "ORGANIZATION_NAME")
     private String organizationName;
 
-    @Column(name = "COMMENT")
-    private String comment;
-
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "FA_ID", referencedColumnName = "ID")
     private FinAccount finAccount;

@@ -12,6 +12,7 @@
     <artifactId>pis</artifactId>
     <version>0.0.1</version>
     <name>pis</name>
+    <packaging>jar</packaging>
     <description>FirstLab</description>
     <properties>
         <java.version>1.8</java.version>

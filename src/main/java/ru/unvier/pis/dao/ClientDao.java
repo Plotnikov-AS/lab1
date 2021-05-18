@@ -81,7 +81,6 @@ public class ClientDao {
         existingClient.setFirstName(client.getFirstName());
         existingClient.setMiddleName(client.getMiddleName());
         existingClient.setOrganizationName(client.getOrganizationName());
-        existingClient.setComment(client.getComment());
 
         entityManager.persist(client);
 

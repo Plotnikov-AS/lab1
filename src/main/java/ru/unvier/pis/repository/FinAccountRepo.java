@@ -8,6 +8,4 @@ import ru.unvier.pis.model.entity.FinAccount;
 @Repository
 public interface FinAccountRepo  extends JpaRepository<FinAccount, Long> {
     FinAccount getById(Long id);
-
-    FinAccount getByClient(Client client);
 }

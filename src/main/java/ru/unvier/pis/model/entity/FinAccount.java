@@ -13,18 +13,6 @@ public class FinAccount {
     @Column(name = "ID")
     private Long id;
 
-    @Column(name = "CUR_BALANCE")
-    private Double curBalance;
-
-    @Column(name = "CREDIT_MAX")
-    private Double creditMax;
-
-    @Column(name = "CUR_DEBT")
-    private Double curDebt;
-
-    @Column(name = "CREDIT_LEFT")
-    private Double creditLeft;
-
     @Column(name = "TOTAL_SPENT")
     private Double totalSpent;
 

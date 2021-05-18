@@ -29,7 +29,7 @@
                 <td><input type="text" id="clientMiddleName" placeholder="Отчество клиента"></td>
             </tr>
             <tr>
-                <td>Фамилия клиента:</td>
+                <td>Название организации:</td>
                 <td><input type="text" id="organizationName" placeholder="Название организации"></td>
             </tr>
         </table>
